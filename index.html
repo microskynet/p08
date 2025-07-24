@@ -268,26 +268,59 @@
                 element.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
             });
 
-            // --- 彗星粒子效果 ---
+            // --- 彗星粒子效果 (V2 - 智能彗尾) ---
             const comet = document.getElementById('comet');
+            const sun = document.getElementById('sun');
             const solarSystem = document.querySelector('.solar-system');
+
             setInterval(() => {
-                const rect = comet.getBoundingClientRect();
-                const solarSystemRect = solarSystem.getBoundingClientRect();
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                particle.style.top = (rect.top - solarSystemRect.top + rect.height / 2) + 'px';
-                particle.style.left = (rect.left - solarSystemRect.left + rect.width / 2) + 'px';
-                const randomX = (Math.random() - 0.5) * 50;
-                const randomY = (Math.random() - 0.5) * 50;
-                particle.style.setProperty('--x', `${randomX}px`);
-                particle.style.setProperty('--y', `${randomY}px`);
-                const randomSize = Math.random() * 3 + 1;
-                particle.style.width = `${randomSize}px`;
-                particle.style.height = `${randomSize}px`;
-                particle.addEventListener('animationend', () => { particle.remove(); });
-                solarSystem.appendChild(particle);
-            }, 50);
+                // 1. 获取太阳和彗星的实时位置
+                const sunRect = sun.getBoundingClientRect();
+                const cometRect = comet.getBoundingClientRect();
+
+                // 2. 计算从太阳指向彗星的向量
+                const vectorX = cometRect.left - sunRect.left;
+                const vectorY = cometRect.top - sunRect.top;
+                const magnitude = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+                
+                // 3. 标准化向量（得到纯方向）
+                const directionX = vectorX / magnitude;
+                const directionY = vectorY / magnitude;
+
+                // 创建 1-2 个粒子来形成更流畅的尾巴
+                for (let i = 0; i < 2; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    
+                    // 粒子初始位置在彗星中心
+                    particle.style.left = (cometRect.left - solarSystem.getBoundingClientRect().left + cometRect.width / 2) + 'px';
+                    particle.style.top = (cometRect.top - solarSystem.getBoundingClientRect().top + cometRect.height / 2) + 'px';
+
+                    // 4. 为粒子设置移动方向和距离（CSS 变量）
+                    const tailLength = (Math.random() * 80) + 50; // 尾巴长度随机
+                    const spread = 0.6; // 尾巴发散角度
+                    // 在基础方向上增加一些随机性，形成锥形尾巴
+                    const tailX = (directionX + (Math.random() - 0.5) * spread) * tailLength;
+                    const tailY = (directionY + (Math.random() - 0.5) * spread) * tailLength;
+                    particle.style.setProperty('--tail-x', `${tailX}px`);
+                    particle.style.setProperty('--tail-y', `${tailY}px`);
+
+                    // 5. 设置粒子大小和动画
+                    const particleSize = Math.random() * 2 + 1;
+                    particle.style.width = `${particleSize}px`;
+                    particle.style.height = `${particleSize}px`;
+                    
+                    const animationDuration = (Math.random() * 1.5) + 1; // 1s to 2.5s
+                    particle.style.animation = `tail-stream ${animationDuration}s linear forwards`;
+                    
+                    // 动画结束后移除粒子
+                    particle.addEventListener('animationend', () => {
+                        particle.remove();
+                    });
+
+                    solarSystem.appendChild(particle);
+                }
+            }, 70); // 稍微降低生成频率
         });
     </script>
 
