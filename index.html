@@ -124,20 +124,31 @@
         /* --- 彗星和粒子效果样式 --- */
         #comet-container {
             position: absolute;
-                        /* 【【【【【【 修正第1步：添加 top 和 left 使其居中 】】】】】】 */
+                        /* 修正1：添加 top 和 left 确保容器在父元素(.solar-system)中居中 */
             top: 50%;
             left: 50%;
+                        /* 修正2：【关键】使用百分比(%)替代vw(viewport width) 单位，让轨道相对于太阳系容器
             width: 150vw;
             height: 150vw;
+                        */
+            width: 150%;
+            height: 150%; 
             animation: comet-orbit 30s linear infinite;
             z-index: 9; /* 仍然很高，但在太阳之下，也无关紧要了 */
-            pointer-events: none; /* 【【【【【【 关键修正 】】】】】】 */
+            pointer-events: none; /* 在该层忽略鼠标 */
         }
 
         #comet {
             position: absolute;
+                    /* 将彗星放在其旋转容器的顶部中心，路径会更清晰
             top: 25%;
             left: -10px;
+            width: 5px;
+            height: 5px;
+                    */
+            top: 0; 
+            left: 50%;
+            transform: translateX(-50%); /* 让彗星元素自身在路径上居中 */
             width: 5px;
             height: 5px;
             background-color: #E0F7FA;
@@ -152,6 +163,7 @@
             animation: fade-and-disperse 1s ease-out forwards;
         }
 
+                /* 修正3：动画中必须同时包含平移和旋转，才能保证旋转中心正确 */
         @keyframes comet-orbit {
             /*
             from { transform: rotate(-45deg); }
