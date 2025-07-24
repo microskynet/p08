@@ -14,7 +14,7 @@
             align-items: center;
             background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
             overflow: hidden;
-            cursor: default; /* 默认光标 */
+            cursor: default;
         }
 
         .solar-system {
@@ -35,13 +35,13 @@
             position: absolute;
         }
         
-        /* --- 轨道和行星 (轨道增加了 cursor: pointer) --- */
+        /* --- 轨道和行星 --- */
         .orbit {
             position: absolute;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             animation: spin linear infinite;
-            cursor: crosshair; /* 提示用户这是一个可交互的轨道 */
+            cursor: crosshair;
         }
 
         .planet {
@@ -56,18 +56,18 @@
             to { transform: rotate(360deg); }
         }
 
-        /* --- Tooltip (信息提示框) 的样式 --- */
+        /* --- Tooltip (信息提示框) 的样式 (无变化) --- */
         .tooltip {
             position: absolute;
-            display: none; /* 默认隐藏 */
+            display: none;
             padding: 10px 15px;
             background-color: rgba(0, 0, 0, 0.75);
             color: #fff;
             border-radius: 8px;
             font-family: sans-serif;
             font-size: 14px;
-            white-space: pre; /* 使用 pre 来保留换行和空格 */
-            pointer-events: none; /* 让鼠标可以穿透提示框，避免闪烁 */
+            white-space: pre;
+            pointer-events: none;
             z-index: 100;
             border: 1px solid rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(5px);
@@ -77,145 +77,78 @@
             color: #fdd835;
         }
         
-        /* --- 行星样式 (无变化) --- */
-        #mercury-orbit { width: 20%; height: 20%; animation-duration: 8.8s; }
+        /* --- 行星样式 (已添加 z-index) --- */
+        #mercury-orbit { width: 20%; height: 20%; animation-duration: 8.8s; z-index: 8; }
         #mercury { width: 8px; height: 8px; background-color: #BCAAA4; left: -4px; }
-        #venus-orbit { width: 30%; height: 30%; animation-duration: 22.5s; }
+
+        #venus-orbit { width: 30%; height: 30%; animation-duration: 22.5s; z-index: 7; }
         #venus { width: 12px; height: 12px; background-color: #FFF59D; left: -6px; }
-        #earth-orbit { width: 45%; height: 45%; animation-duration: 36.5s; }
+
+        #earth-orbit { width: 45%; height: 45%; animation-duration: 36.5s; z-index: 6; }
         #earth { width: 14px; height: 14px; background: linear-gradient(to bottom, #4FC3F7, #2E7D32); left: -7px; }
-        #mars-orbit { width: 60%; height: 60%; animation-duration: 68.7s; }
+
+        #mars-orbit { width: 60%; height: 60%; animation-duration: 68.7s; z-index: 5; }
         #mars { width: 10px; height: 10px; background-color: #E57373; left: -5px; }
-        #jupiter-orbit { width: 80%; height: 80%; animation-duration: 100s; }
+
+        #jupiter-orbit { width: 80%; height: 80%; animation-duration: 100s; z-index: 4; }
         #jupiter { width: 28px; height: 28px; background: linear-gradient(to bottom, #F5F5F5, #FFCC80); left: -14px; }
-        #saturn-orbit { width: 100%; height: 100%; animation-duration: 150s; }
+
+        #saturn-orbit { width: 100%; height: 100%; animation-duration: 150s; z-index: 3; }
         #saturn { width: 24px; height: 24px; background-color: #FFE082; left: -12px; }
         #saturn::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; border: 2px solid rgba(255, 224, 130, 0.7); border-radius: 50%; transform: translate(-50%, -50%) rotateX(70deg); }
-        #uranus-orbit { width: 120%; height: 120%; animation-duration: 200s; }
+        
+        #uranus-orbit { width: 120%; height: 120%; animation-duration: 200s; z-index: 2; }
         #uranus { width: 18px; height: 18px; background-color: #B2EBF2; left: -9px; }
-        #neptune-orbit { width: 140%; height: 140%; animation-duration: 250s; }
+        
+        #neptune-orbit { width: 140%; height: 140%; animation-duration: 250s; z-index: 1; }
         #neptune { width: 16px; height: 16px; background-color: #81D4FA; left: -8px; }
     </style>
 </head>
 <body>
 
+    <!-- HTML 部分无需任何改动 -->
     <div class="solar-system">
         <div id="sun"></div>
-
-        <!-- 每个轨道上都添加了 data-* 属性来存储信息 -->
-        <div class="orbit" id="mercury-orbit"
-            data-planet="水星 (Mercury)"
-            data-temp-eq="167°C"
-            data-temp-po="-173°C"
-            data-orbit-v="47.4 km/s"
-            data-rotate-v="0.003 km/s">
-            <div class="planet" id="mercury"></div>
-        </div>
-
-        <div class="orbit" id="venus-orbit"
-            data-planet="金星 (Venus)"
-            data-temp-eq="464°C"
-            data-temp-po="464°C"
-            data-orbit-v="35.0 km/s"
-            data-rotate-v="0.0018 km/s">
-            <div class="planet" id="venus"></div>
-        </div>
-
-        <div class="orbit" id="earth-orbit"
-            data-planet="地球 (Earth)"
-            data-temp-eq="20°C (平均)"
-            data-temp-po="-40°C (平均)"
-            data-orbit-v="29.8 km/s"
-            data-rotate-v="0.46 km/s">
-            <div class="planet" id="earth"></div>
-        </div>
-
-        <div class="orbit" id="mars-orbit"
-            data-planet="火星 (Mars)"
-            data-temp-eq="20°C"
-            data-temp-po="-125°C"
-            data-orbit-v="24.1 km/s"
-            data-rotate-v="0.24 km/s">
-            <div class="planet" id="mars"></div>
-        </div>
-
-        <div class="orbit" id="jupiter-orbit"
-            data-planet="木星 (Jupiter)"
-            data-temp-eq="-108°C"
-            data-temp-po="-108°C"
-            data-orbit-v="13.1 km/s"
-            data-rotate-v="12.6 km/s">
-            <div class="planet" id="jupiter"></div>
-        </div>
-
-        <div class="orbit" id="saturn-orbit"
-            data-planet="土星 (Saturn)"
-            data-temp-eq="-139°C"
-            data-temp-po="-139°C"
-            data-orbit-v="9.7 km/s"
-            data-rotate-v="9.87 km/s">
-            <div class="planet" id="saturn"></div>
-        </div>
-        
-        <div class="orbit" id="uranus-orbit"
-            data-planet="天王星 (Uranus)"
-            data-temp-eq="-197°C"
-            data-temp-po="-197°C"
-            data-orbit-v="6.8 km/s"
-            data-rotate-v="2.59 km/s">
-            <div class="planet" id="uranus"></div>
-        </div>
-        
-        <div class="orbit" id="neptune-orbit"
-            data-planet="海王星 (Neptune)"
-            data-temp-eq="-201°C"
-            data-temp-po="-201°C"
-            data-orbit-v="5.4 km/s"
-            data-rotate-v="2.68 km/s">
-            <div class="planet" id="neptune"></div>
-        </div>
+        <div class="orbit" id="mercury-orbit" data-planet="水星 (Mercury)" data-temp-eq="167°C" data-temp-po="-173°C" data-orbit-v="47.4 km/s" data-rotate-v="0.003 km/s"><div class="planet" id="mercury"></div></div>
+        <div class="orbit" id="venus-orbit" data-planet="金星 (Venus)" data-temp-eq="464°C" data-temp-po="464°C" data-orbit-v="35.0 km/s" data-rotate-v="0.0018 km/s"><div class="planet" id="venus"></div></div>
+        <div class="orbit" id="earth-orbit" data-planet="地球 (Earth)" data-temp-eq="20°C (平均)" data-temp-po="-40°C (平均)" data-orbit-v="29.8 km/s" data-rotate-v="0.46 km/s"><div class="planet" id="earth"></div></div>
+        <div class="orbit" id="mars-orbit" data-planet="火星 (Mars)" data-temp-eq="20°C" data-temp-po="-125°C" data-orbit-v="24.1 km/s" data-rotate-v="0.24 km/s"><div class="planet" id="mars"></div></div>
+        <div class="orbit" id="jupiter-orbit" data-planet="木星 (Jupiter)" data-temp-eq="-108°C" data-temp-po="-108°C" data-orbit-v="13.1 km/s" data-rotate-v="12.6 km/s"><div class="planet" id="jupiter"></div></div>
+        <div class="orbit" id="saturn-orbit" data-planet="土星 (Saturn)" data-temp-eq="-139°C" data-temp-po="-139°C" data-orbit-v="9.7 km/s" data-rotate-v="9.87 km/s"><div class="planet" id="saturn"></div></div>
+        <div class="orbit" id="uranus-orbit" data-planet="天王星 (Uranus)" data-temp-eq="-197°C" data-temp-po="-197°C" data-orbit-v="6.8 km/s" data-rotate-v="2.59 km/s"><div class="planet" id="uranus"></div></div>
+        <div class="orbit" id="neptune-orbit" data-planet="海王星 (Neptune)" data-temp-eq="-201°C" data-temp-po="-201°C" data-orbit-v="5.4 km/s" data-rotate-v="2.68 km/s"><div class="planet" id="neptune"></div></div>
     </div>
 
-    <!-- JavaScript 代码部分 -->
+    <!-- JavaScript 部分无需任何改动 -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. 创建一个 tooltip 元素并添加到 body
             const tooltip = document.createElement('div');
             tooltip.classList.add('tooltip');
             document.body.appendChild(tooltip);
 
-            // 2. 获取所有的轨道元素
             const orbits = document.querySelectorAll('.orbit');
 
-            // 3. 为每个轨道添加事件监听器
             orbits.forEach(orbit => {
-                // 鼠标进入轨道
                 orbit.addEventListener('mouseover', (event) => {
                     const target = event.currentTarget;
                     const planetData = target.dataset;
-
-                    // 4. 从 data-* 属性构建 tooltip 的内容
                     const content = `<b>${planetData.planet}</b>
 --------------------
 赤道温度: ${planetData.tempEq}
 极地温度: ${planetData.tempPo}
 公转速度: ${planetData.orbitV}
 自转速度: ${planetData.rotateV}`;
-                    
                     tooltip.innerHTML = content;
-                    tooltip.style.display = 'block'; // 显示 tooltip
+                    tooltip.style.display = 'block';
                 });
 
-                // 鼠标在轨道上移动
                 orbit.addEventListener('mousemove', (event) => {
-                    // 5. 更新 tooltip 的位置，让它跟随鼠标 (加一点偏移，避免挡住光标)
                     tooltip.style.left = (event.pageX + 15) + 'px';
                     tooltip.style.top = (event.pageY + 15) + 'px';
                 });
 
-                // 鼠标离开轨道
                 orbit.addEventListener('mouseleave', () => {
-                    tooltip.style.display = 'none'; // 隐藏 tooltip
+                    tooltip.style.display = 'none';
                 });
             });
         });
