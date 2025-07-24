@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Solar System with Comets</title>
+    <title>Interactive Solar System - Final Edition</title>
     <style>
         /* --- 基本设置 --- */
         body {
@@ -12,11 +12,32 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #000; /* 使用纯黑背景更能凸显彗星 */
-            background-image: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            background: #000; /* 纯黑背景 */
             overflow: hidden;
             cursor: default;
             font-family: sans-serif;
+        }
+        
+        /* --- 新增：深空背景 --- */
+        #star-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* 确保在最底层 */
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
 
         .solar-system {
@@ -103,16 +124,17 @@
         /* --- 彗星和粒子效果样式 --- */
         #comet-container {
             position: absolute;
-            width: 150vw; /* 一个巨大的轨道容器 */
+            width: 150vw;
             height: 150vw;
-            animation: comet-orbit 30s linear infinite; /* 彗星公转，30秒一圈 */
-            z-index: 20; /* 让彗星在最顶层 */
+            animation: comet-orbit 30s linear infinite;
+            z-index: 9; /* 仍然很高，但在太阳之下，也无关紧要了 */
+            pointer-events: none; /* 【【【【【【 关键修正 】】】】】】 */
         }
 
         #comet {
             position: absolute;
             top: 25%;
-            left: -10px; /* 从容器边缘外开始 */
+            left: -10px;
             width: 5px;
             height: 5px;
             background-color: #E0F7FA;
@@ -124,30 +146,24 @@
             position: absolute;
             background-color: #80DEEA;
             border-radius: 50%;
-            /* 关键动画：1秒内放大、分散并消失 */
             animation: fade-and-disperse 1s ease-out forwards;
         }
 
         @keyframes comet-orbit {
-            from { transform: rotate(-45deg); } /* 从一个倾斜的角度开始 */
+            from { transform: rotate(-45deg); }
             to { transform: rotate(315deg); }
         }
 
         @keyframes fade-and-disperse {
-            from {
-                opacity: 1;
-                transform: scale(1);
-            }
-            to {
-                opacity: 0;
-                /* 粒子会随机向四周散开，最大距离50px */
-                transform: scale(0) translate(var(--x), var(--y));
-            }
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0) translate(var(--x), var(--y)); }
         }
 
     </style>
 </head>
 <body>
+    
+    <div id="star-background"></div>
 
     <div class="solar-system">
         <!-- 太阳和行星的 HTML (无变化) -->
@@ -161,7 +177,6 @@
         <div class="orbit" id="uranus-orbit" data-name="天王星 (Uranus)" data-diameter="50,724 km" data-mass="8.68 × 10²⁵ kg" data-perihelion="2741.3 M km" data-aphelion="3003.6 M km" data-atmosphere="深厚 (冰巨行星)" data-orbit-v="6.8 km/s" data-rotate-v="2.59 km/s"><div class="planet" id="uranus"></div></div>
         <div class="orbit" id="neptune-orbit" data-name="海王星 (Neptune)" data-diameter="49,244 km" data-mass="1.02 × 10²⁶ kg" data-perihelion="4444.5 M km" data-aphelion="4545.7 M km" data-atmosphere="深厚 (冰巨行星)" data-orbit-v="5.4 km/s" data-rotate-v="2.68 km/s"><div class="planet" id="neptune"></div></div>
 
-        <!-- 彗星的 HTML -->
         <div id="comet-container">
             <div id="comet"></div>
         </div>
@@ -170,7 +185,24 @@
     <!-- JavaScript 部分已更新 -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Tooltip 功能 (无变化) ---
+            // --- 新增：创建闪烁的星空 ---
+            const starBackground = document.getElementById('star-background');
+            const starCount = 200; // 星星的数量
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                const size = Math.random() * 2 + 0.5; // 0.5px to 2.5px
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                // 随机动画延迟和周期，让闪烁看起来更自然
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                star.style.animationDuration = `${Math.random() * 3 + 2}s`; // 2s to 5s
+                starBackground.appendChild(star);
+            }
+            
+            // --- Tooltip 功能 ---
             const tooltip = document.createElement('div');
             tooltip.classList.add('tooltip');
             document.body.appendChild(tooltip);
@@ -191,38 +223,24 @@
                 element.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
             });
 
-            // --- 新增：彗星粒子效果 ---
+            // --- 彗星粒子效果 ---
             const comet = document.getElementById('comet');
             const solarSystem = document.querySelector('.solar-system');
-
-            // 每隔 50ms 创建一个粒子
             setInterval(() => {
-                const rect = comet.getBoundingClientRect(); // 获取彗星在屏幕上的实时位置
-                const solarSystemRect = solarSystem.getBoundingClientRect(); // 获取太阳系容器的位置作为参照
-
+                const rect = comet.getBoundingClientRect();
+                const solarSystemRect = solarSystem.getBoundingClientRect();
                 const particle = document.createElement('div');
                 particle.classList.add('particle');
-                
-                // 计算粒子相对于太阳系容器的位置
                 particle.style.top = (rect.top - solarSystemRect.top + rect.height / 2) + 'px';
                 particle.style.left = (rect.left - solarSystemRect.left + rect.width / 2) + 'px';
-                
-                // 为粒子动画添加随机性
-                const randomX = (Math.random() - 0.5) * 50; // X轴方向 -25px 到 +25px
-                const randomY = (Math.random() - 0.5) * 50; // Y轴方向 -25px 到 +25px
+                const randomX = (Math.random() - 0.5) * 50;
+                const randomY = (Math.random() - 0.5) * 50;
                 particle.style.setProperty('--x', `${randomX}px`);
                 particle.style.setProperty('--y', `${randomY}px`);
-
-                // 随机粒子大小
-                const randomSize = Math.random() * 3 + 1; // 1px 到 4px
+                const randomSize = Math.random() * 3 + 1;
                 particle.style.width = `${randomSize}px`;
                 particle.style.height = `${randomSize}px`;
-
-                // 监听动画结束事件，结束后从DOM中移除粒子，防止内存泄漏
-                particle.addEventListener('animationend', () => {
-                    particle.remove();
-                });
-
+                particle.addEventListener('animationend', () => { particle.remove(); });
                 solarSystem.appendChild(particle);
             }, 50);
         });
