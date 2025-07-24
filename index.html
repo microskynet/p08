@@ -138,37 +138,35 @@
             pointer-events: none; /* 在该层忽略鼠标 */
         }
 
-        /* --- 彗星和粒子效果样式 (V4 - 动态曲线轨道) --- */
+        /* --- 彗星和粒子效果样式 (V5 - 最终版) --- */
         
-        /* 1. 新增：看不见的轨道平面，它的作用是旋转 */
+        /* 1. 看不见的轨道平面，它的作用是旋转（无变化） */
         #comet-orbit-container {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 150vmin; /* 确保足够大，能容纳整个轨迹 */
+            width: 150vmin;
             height: 150vmin;
             pointer-events: none;
-            
-            /* 应用一个缓慢的、永不停歇的旋转动画 */
-            /* 动画时长设为一个质数(29s)，以避免与彗星动画(17s)同步 */
             animation: rotate-comet-plane 29s linear infinite;
         }
 
-        /* 2. 彗星现在只在它的父容器(轨道平面)里做直线运动 */
+        /* 2. 彗星的样式 */
         #comet {
             position: absolute;
-            top: 50%; /* 垂直居中于轨道平面 */
-            left: 0;  /* 从轨道平面的最左侧开始 */
+            /* 【【【【【【 关键修正 1：偏离中心，不再穿过太阳 】】】】】】 */
+            /* 不再是50%，而是25%，让它沿着一条弦运动，而非直径 */
+            top: 25%; 
+            left: 0;
             
-            /* 视觉样式保持不变 */
             width: 8px;
             height: 8px;
             background-color: #E0F7FA;
             border-radius: 50%;
             box-shadow: 0 0 15px #80DEEA, 0 0 25px #fff, 0 0 40px #00bcd4;
             
-            /* 应用一个独立的、重复的“直线发射”动画 */
-            animation: comet-straight-shot 17s ease-in-out infinite;
+            /* 应用新的、带有戏剧性速度变化的动画 */
+            animation: comet-slingshot-shot 17s infinite;
         }
 
         .particle {
@@ -179,7 +177,7 @@
             z-index: 19;
         }
 
-        /* 3. 新增：轨道平面的旋转动画 */
+        /* 3. 轨道平面的旋转动画（无变化） */
         @keyframes rotate-comet-plane {
             from {
                 transform: translate(-50%, -50%) rotate(-20deg);
@@ -189,25 +187,29 @@
             }
         }
 
-        /* 4. 新增：彗星在轨道平面内的直线运动动画 */
-        @keyframes comet-straight-shot {
+        /* 4. 【【【【【【 关键修正 2：引力弹弓效应动画 】】】】】】 */
+        @keyframes comet-slingshot-shot {
             0% {
-                transform: translateX(0); /* 起点在最左侧 */
+                transform: translateX(0vmin);
+                animation-timing-function: ease-in; /* 缓慢加速进入 */
                 opacity: 0;
             }
-            15% {
-                opacity: 1; /* 淡入 */
+            10% {
+                opacity: 1; /* 完全可见 */
             }
-            85% {
-                opacity: 1; /* 在消失前保持可见 */
+            /* 从10%到90%是飞越过程 */
+            90% {
+                transform: translateX(150vmin);
+                animation-timing-function: ease-out; /* 快速飞越后缓慢减速 */
+                opacity: 1;
             }
             100% {
-                transform: translateX(150vmin); /* 终点在最右侧 */
-                opacity: 0;
+                transform: translateX(150vmin);
+                opacity: 0; /* 在终点淡出 */
             }
         }
         
-        /* 粒子尾巴的动画依然完美，保持不变 */
+        /* 粒子尾巴的动画（无变化） */
         @keyframes tail-stream {
             from {
                 opacity: 1;
