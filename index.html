@@ -26,6 +26,7 @@
             align-items: center;
         }
 
+        /* --- 太阳样式 (已更新) --- */
         #sun {
             width: 10%;
             height: 10%;
@@ -33,6 +34,8 @@
             border-radius: 50%;
             box-shadow: 0 0 60px #fdd835, 0 0 90px #f57f17;
             position: absolute;
+            z-index: 10; /* 确保太阳在所有轨道之上 */
+            cursor: pointer;
         }
         
         /* --- 轨道和行星 --- */
@@ -106,9 +109,15 @@
 </head>
 <body>
 
-    <!-- HTML 部分无需任何改动 -->
     <div class="solar-system">
-        <div id="sun"></div>
+        <!-- 太阳的数据已添加 -->
+        <div id="sun"
+            data-planet="太阳 (Sun)"
+            data-temp-surface="约 5500°C"
+            data-rotate-v="约 2 km/s"
+            data-galaxy-v="约 230 km/s">
+        </div>
+
         <div class="orbit" id="mercury-orbit" data-planet="水星 (Mercury)" data-temp-eq="167°C" data-temp-po="-173°C" data-orbit-v="47.4 km/s" data-rotate-v="0.003 km/s"><div class="planet" id="mercury"></div></div>
         <div class="orbit" id="venus-orbit" data-planet="金星 (Venus)" data-temp-eq="464°C" data-temp-po="464°C" data-orbit-v="35.0 km/s" data-rotate-v="0.0018 km/s"><div class="planet" id="venus"></div></div>
         <div class="orbit" id="earth-orbit" data-planet="地球 (Earth)" data-temp-eq="20°C (平均)" data-temp-po="-40°C (平均)" data-orbit-v="29.8 km/s" data-rotate-v="0.46 km/s"><div class="planet" id="earth"></div></div>
@@ -119,35 +128,48 @@
         <div class="orbit" id="neptune-orbit" data-planet="海王星 (Neptune)" data-temp-eq="-201°C" data-temp-po="-201°C" data-orbit-v="5.4 km/s" data-rotate-v="2.68 km/s"><div class="planet" id="neptune"></div></div>
     </div>
 
-    <!-- JavaScript 部分无需任何改动 -->
+    <!-- JavaScript 部分已更新 -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tooltip = document.createElement('div');
             tooltip.classList.add('tooltip');
             document.body.appendChild(tooltip);
 
-            const orbits = document.querySelectorAll('.orbit');
+            // 选择所有可交互的元素：轨道和太阳
+            const interactiveElements = document.querySelectorAll('.orbit, #sun');
 
-            orbits.forEach(orbit => {
-                orbit.addEventListener('mouseover', (event) => {
+            interactiveElements.forEach(element => {
+                element.addEventListener('mouseover', (event) => {
                     const target = event.currentTarget;
                     const planetData = target.dataset;
-                    const content = `<b>${planetData.planet}</b>
+                    let content = '';
+
+                    // 根据ID判断是太阳还是行星，生成不同内容
+                    if (target.id === 'sun') {
+                        content = `<b>${planetData.planet}</b>
+--------------------
+表面温度: ${planetData.tempSurface}
+赤道自转: ${planetData.rotateV}
+公转速度 (银河系): ${planetData.galaxyV}`;
+                    } else {
+                        content = `<b>${planetData.planet}</b>
 --------------------
 赤道温度: ${planetData.tempEq}
 极地温度: ${planetData.tempPo}
 公转速度: ${planetData.orbitV}
 自转速度: ${planetData.rotateV}`;
+                    }
+                    
                     tooltip.innerHTML = content;
                     tooltip.style.display = 'block';
                 });
 
-                orbit.addEventListener('mousemove', (event) => {
+                element.addEventListener('mousemove', (event) => {
                     tooltip.style.left = (event.pageX + 15) + 'px';
                     tooltip.style.top = (event.pageY + 15) + 'px';
                 });
 
-                orbit.addEventListener('mouseleave', () => {
+                element.addEventListener('mouseleave', () => {
                     tooltip.style.display = 'none';
                 });
             });
