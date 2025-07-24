@@ -138,23 +138,75 @@
             pointer-events: none; /* 在该层忽略鼠标 */
         }
 
-        /* --- 彗星和粒子效果样式 (V2 - 真实轨道与彗尾) --- */
+        /* --- 彗星和粒子效果样式 (V3 - 可靠的变换动画) --- */
         #comet {
             position: absolute;
-            /* 使用 offset-path 定义一条穿越行星的贝塞尔曲线轨道 */
-            offset-path: path('M -5%,50% C 30%,150% 70%,-50% 105%,50%');
-            animation: follow-orbit 30s linear infinite;
+            /* 1. 将彗星的变换“原点”放在太阳系的中心 */
+            top: 50%;
+            left: 50%;
             
-            /* 视觉样式 */
+            /* 2. 应用新的、基于 transform 的动画 */
+            animation: comet-flight-path 25s linear infinite;
+            
+            /* 3. 视觉样式 */
             width: 8px;
             height: 8px;
             background-color: #E0F7FA;
             border-radius: 50%;
             box-shadow: 0 0 15px #80DEEA, 0 0 25px #fff, 0 0 40px #00bcd4;
             
-            /* 确保在其他元素之上，且不接受鼠标事件 */
             z-index: 20;
             pointer-events: none;
+            /* 初始设为透明，由动画来控制何时显示 */
+            opacity: 0; 
+        }
+
+        .particle {
+            position: absolute;
+            background-color: #80DEEA;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 19;
+        }
+
+        /* 4. 全新的、使用 transform 定义的彗星轨迹动画 */
+        @keyframes comet-flight-path {
+            0% {
+                /* 从一个远离屏幕左上角的位置开始 */
+                transform: translate(-30vmin, -35vmin);
+                opacity: 0;
+            }
+            15% {
+                /* 用15%的时间飞入视野并完全可见 */
+                transform: translate(0vmin, -10vmin);
+                opacity: 1;
+            }
+            50% {
+                /* 飞到路径的中间点，划过太阳系右下方 */
+                transform: translate(38vmin, 30vmin);
+            }
+            85% {
+                /* 用35%的时间飞离，在离开前保持可见 */
+                transform: translate(70vmin, -5vmin);
+                opacity: 1;
+            }
+            100% {
+                /* 在屏幕右上角外完全消失 */
+                transform: translate(80vmin, -20vmin);
+                opacity: 0;
+            }
+        }
+
+        /* 粒子尾巴的动画是正确的，保持不变 */
+        @keyframes tail-stream {
+            from {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0) translate(var(--tail-x), var(--tail-y));
+            }
         }
 
         .particle {
