@@ -138,27 +138,37 @@
             pointer-events: none; /* 在该层忽略鼠标 */
         }
 
-        /* --- 彗星和粒子效果样式 (V3 - 可靠的变换动画) --- */
-        #comet {
+        /* --- 彗星和粒子效果样式 (V4 - 动态曲线轨道) --- */
+        
+        /* 1. 新增：看不见的轨道平面，它的作用是旋转 */
+        #comet-orbit-container {
             position: absolute;
-            /* 1. 将彗星的变换“原点”放在太阳系的中心 */
             top: 50%;
             left: 50%;
+            width: 150vmin; /* 确保足够大，能容纳整个轨迹 */
+            height: 150vmin;
+            pointer-events: none;
             
-            /* 2. 应用新的、基于 transform 的动画 */
-            animation: comet-flight-path 25s linear infinite;
+            /* 应用一个缓慢的、永不停歇的旋转动画 */
+            /* 动画时长设为一个质数(29s)，以避免与彗星动画(17s)同步 */
+            animation: rotate-comet-plane 29s linear infinite;
+        }
+
+        /* 2. 彗星现在只在它的父容器(轨道平面)里做直线运动 */
+        #comet {
+            position: absolute;
+            top: 50%; /* 垂直居中于轨道平面 */
+            left: 0;  /* 从轨道平面的最左侧开始 */
             
-            /* 3. 视觉样式 */
+            /* 视觉样式保持不变 */
             width: 8px;
             height: 8px;
             background-color: #E0F7FA;
             border-radius: 50%;
             box-shadow: 0 0 15px #80DEEA, 0 0 25px #fff, 0 0 40px #00bcd4;
             
-            z-index: 20;
-            pointer-events: none;
-            /* 初始设为透明，由动画来控制何时显示 */
-            opacity: 0; 
+            /* 应用一个独立的、重复的“直线发射”动画 */
+            animation: comet-straight-shot 17s ease-in-out infinite;
         }
 
         .particle {
@@ -169,35 +179,35 @@
             z-index: 19;
         }
 
-        /* 4. 全新的、使用 transform 定义的彗星轨迹动画 */
-        @keyframes comet-flight-path {
+        /* 3. 新增：轨道平面的旋转动画 */
+        @keyframes rotate-comet-plane {
+            from {
+                transform: translate(-50%, -50%) rotate(-20deg);
+            }
+            to {
+                transform: translate(-50%, -50%) rotate(340deg);
+            }
+        }
+
+        /* 4. 新增：彗星在轨道平面内的直线运动动画 */
+        @keyframes comet-straight-shot {
             0% {
-                /* 从一个远离屏幕左上角的位置开始 */
-                transform: translate(-30vmin, -35vmin);
+                transform: translateX(0); /* 起点在最左侧 */
                 opacity: 0;
             }
             15% {
-                /* 用15%的时间飞入视野并完全可见 */
-                transform: translate(0vmin, -10vmin);
-                opacity: 1;
-            }
-            50% {
-                /* 飞到路径的中间点，划过太阳系右下方 */
-                transform: translate(38vmin, 30vmin);
+                opacity: 1; /* 淡入 */
             }
             85% {
-                /* 用35%的时间飞离，在离开前保持可见 */
-                transform: translate(70vmin, -5vmin);
-                opacity: 1;
+                opacity: 1; /* 在消失前保持可见 */
             }
             100% {
-                /* 在屏幕右上角外完全消失 */
-                transform: translate(80vmin, -20vmin);
+                transform: translateX(150vmin); /* 终点在最右侧 */
                 opacity: 0;
             }
         }
-
-        /* 粒子尾巴的动画是正确的，保持不变 */
+        
+        /* 粒子尾巴的动画依然完美，保持不变 */
         @keyframes tail-stream {
             from {
                 opacity: 1;
@@ -207,56 +217,6 @@
                 opacity: 0;
                 transform: scale(0) translate(var(--tail-x), var(--tail-y));
             }
-        }
-
-        .particle {
-            position: absolute;
-            background-color: #80DEEA;
-            border-radius: 50%;
-            /* 关键：动画现在由 JS 动态设置 */
-            pointer-events: none;
-            z-index: 19; /* 在彗星之后 */
-        }
-
-        /* 彗星沿轨道移动的动画 */
-        @keyframes follow-orbit {
-            0% { offset-distance: 0%; }
-            100% { offset-distance: 100%; }
-        }
-
-        /* 粒子尾巴的动画：朝指定方向移动并消失 */
-        @keyframes tail-stream {
-            from {
-                opacity: 1;
-                transform: scale(1.2);
-            }
-            to {
-                opacity: 0;
-                /* 使用 JS 提供的 CSS 变量来控制移动方向和距离 */
-                transform: scale(0) translate(var(--tail-x), var(--tail-y));
-            }
-        }
-
-        .particle {
-            position: absolute;
-            background-color: #80DEEA;
-            border-radius: 50%;
-            animation: fade-and-disperse 1s ease-out forwards;
-        }
-
-                /* 修正3：动画中必须同时包含平移和旋转，才能保证旋转中心正确 */
-        @keyframes comet-orbit {
-            /*
-            from { transform: rotate(-45deg); }
-            to { transform: rotate(315deg); }
-            */
-            from { transform: translate(-50%, -50%) rotate(-45deg); }
-            to { transform: translate(-50%, -50%) rotate(315deg); }
-        }
-
-        @keyframes fade-and-disperse {
-            from { opacity: 1; transform: scale(1); }
-            to { opacity: 0; transform: scale(0) translate(var(--x), var(--y)); }
         }
 
     </style>
@@ -277,7 +237,10 @@
         <div class="orbit" id="uranus-orbit" data-name="天王星 (Uranus)" data-diameter="50,724 km" data-mass="8.68 × 10²⁵ kg" data-perihelion="2741.3 M km" data-aphelion="3003.6 M km" data-atmosphere="深厚 (冰巨行星)" data-orbit-v="6.8 km/s" data-rotate-v="2.59 km/s"><div class="planet" id="uranus"></div></div>
         <div class="orbit" id="neptune-orbit" data-name="海王星 (Neptune)" data-diameter="49,244 km" data-mass="1.02 × 10²⁶ kg" data-perihelion="4444.5 M km" data-aphelion="4545.7 M km" data-atmosphere="深厚 (冰巨行星)" data-orbit-v="5.4 km/s" data-rotate-v="2.68 km/s"><div class="planet" id="neptune"></div></div>
 
-        <div id="comet"></div> <!-- comet-container 彗星容器 -->
+            <!-- comet-orbit-container 彗星轨道容器 -->
+        <div id="comet-orbit-container">
+            <div id="comet"></div>
+        </div>
     </div>
 
     <!-- JavaScript 部分已更新 -->
