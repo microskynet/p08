@@ -146,10 +146,14 @@
             border-radius: 50%;
             box-shadow: 0 0 15px #80DEEA, 0 0 25px #fff, 0 0 40px #00bcd4;
             
-            /* 【【【【【【 关键修正 1：应用新的动画，并加长时间 】】】】】】 */
-            animation: artistic-comet-flight 22s infinite;
-            /* 应用自定义的、极度缓和的贝塞尔曲线 */
-            animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+            /* 【【【【【【 终极修正 】】】】】】 */
+            /* 1. 大幅延长动画时间，这是降低整体速度最有效的手段 */
+            animation-name: artistic-comet-flight;
+            animation-duration: 40s; /* 从 22s 延长到 40s，整体速度接近减半 */
+            animation-iteration-count: infinite;
+            
+            /* 2. 使用一条更“慵懒”的贝塞尔曲线，降低峰值速度 */
+            animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
         }
 
         .particle {
