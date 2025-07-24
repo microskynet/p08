@@ -138,22 +138,50 @@
             pointer-events: none; /* 在该层忽略鼠标 */
         }
 
+        /* --- 彗星和粒子效果样式 (V2 - 真实轨道与彗尾) --- */
         #comet {
-            position: absolute;
-                    /* 将彗星放在其旋转容器的顶部中心，路径会更清晰
-            top: 25%;
-            left: -10px;
-            width: 5px;
-            height: 5px;
-                    */
-            top: 0; 
-            left: 50%;
-            transform: translateX(-50%); /* 让彗星元素自身在路径上居中 */
-            width: 5px;
-            height: 5px;
+            /* 使用 offset-path 定义一条穿越行星的贝塞尔曲线轨道 */
+            offset-path: path('M -5%,50% C 30%,150% 70%,-50% 105%,50%');
+            animation: follow-orbit 30s linear infinite;
+            
+            /* 视觉样式 */
+            width: 8px;
+            height: 8px;
             background-color: #E0F7FA;
             border-radius: 50%;
-            box-shadow: 0 0 15px #80DEEA, 0 0 25px #fff;
+            box-shadow: 0 0 15px #80DEEA, 0 0 25px #fff, 0 0 40px #00bcd4;
+            
+            /* 确保在其他元素之上，且不接受鼠标事件 */
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background-color: #80DEEA;
+            border-radius: 50%;
+            /* 关键：动画现在由 JS 动态设置 */
+            pointer-events: none;
+            z-index: 19; /* 在彗星之后 */
+        }
+
+        /* 彗星沿轨道移动的动画 */
+        @keyframes follow-orbit {
+            0% { offset-distance: 0%; }
+            100% { offset-distance: 100%; }
+        }
+
+        /* 粒子尾巴的动画：朝指定方向移动并消失 */
+        @keyframes tail-stream {
+            from {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            to {
+                opacity: 0;
+                /* 使用 JS 提供的 CSS 变量来控制移动方向和距离 */
+                transform: scale(0) translate(var(--tail-x), var(--tail-y));
+            }
         }
 
         .particle {
@@ -196,9 +224,7 @@
         <div class="orbit" id="uranus-orbit" data-name="天王星 (Uranus)" data-diameter="50,724 km" data-mass="8.68 × 10²⁵ kg" data-perihelion="2741.3 M km" data-aphelion="3003.6 M km" data-atmosphere="深厚 (冰巨行星)" data-orbit-v="6.8 km/s" data-rotate-v="2.59 km/s"><div class="planet" id="uranus"></div></div>
         <div class="orbit" id="neptune-orbit" data-name="海王星 (Neptune)" data-diameter="49,244 km" data-mass="1.02 × 10²⁶ kg" data-perihelion="4444.5 M km" data-aphelion="4545.7 M km" data-atmosphere="深厚 (冰巨行星)" data-orbit-v="5.4 km/s" data-rotate-v="2.68 km/s"><div class="planet" id="neptune"></div></div>
 
-        <div id="comet-container">
-            <div id="comet"></div>
-        </div>
+        <div id="comet"></div> <!-- comet-container 彗星容器 -->
     </div>
 
     <!-- JavaScript 部分已更新 -->
