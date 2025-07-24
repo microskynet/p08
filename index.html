@@ -121,42 +121,23 @@
         #neptune-orbit { width: 140%; height: 140%; animation-duration: 250s; z-index: 1; }
         #neptune { width: 16px; height: 16px; background-color: #81D4FA; left: -8px; }
 
-        /* --- 彗星和粒子效果样式 --- */
-        #comet-container {
-            position: absolute;
-                        /* 修正1：添加 top 和 left 确保容器在父元素(.solar-system)中居中 */
-            top: 50%;
-            left: 50%;
-                        /* 修正2：【关键】使用百分比(%)替代vw(viewport width) 单位，让轨道相对于太阳系容器
-            width: 150vw;
-            height: 150vw;
-                        */
-            width: 150%;
-            height: 150%; 
-            animation: comet-orbit 30s linear infinite;
-            z-index: 9; /* 仍然很高，但在太阳之下，也无关紧要了 */
-            pointer-events: none; /* 在该层忽略鼠标 */
-        }
-
-        /* --- 彗星和粒子效果样式 (V5 - 最终版) --- */
+        /* --- 彗星和粒子效果样式 (V6 - 艺术品级) --- */
         
-        /* 1. 看不见的轨道平面，它的作用是旋转（无变化） */
+        /* 轨道平面：旋转（无变化） */
         #comet-orbit-container {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 150vmin;
-            height: 150vmin;
+            width: 160vmin; /* 稍微再扩大一点，让轨迹更舒展 */
+            height: 160vmin;
             pointer-events: none;
             animation: rotate-comet-plane 29s linear infinite;
         }
 
-        /* 2. 彗星的样式 */
+        /* 彗星本体 */
         #comet {
             position: absolute;
-            /* 【【【【【【 关键修正 1：偏离中心，不再穿过太阳 】】】】】】 */
-            /* 不再是50%，而是25%，让它沿着一条弦运动，而非直径 */
-            top: 35%; 
+            top: 35%; /* 偏离中心，擦肩而过 */
             left: 0;
             
             width: 8px;
@@ -165,8 +146,10 @@
             border-radius: 50%;
             box-shadow: 0 0 15px #80DEEA, 0 0 25px #fff, 0 0 40px #00bcd4;
             
-            /* 应用新的、带有戏剧性速度变化的动画 */
-            animation: comet-slingshot-shot 17s infinite;
+            /* 【【【【【【 关键修正 1：应用新的动画，并加长时间 】】】】】】 */
+            animation: artistic-comet-flight 22s infinite;
+            /* 应用自定义的、极度缓和的贝塞尔曲线 */
+            animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
         }
 
         .particle {
@@ -177,7 +160,7 @@
             z-index: 19;
         }
 
-        /* 3. 轨道平面的旋转动画（无变化） */
+        /* 轨道平面的旋转动画（无变化） */
         @keyframes rotate-comet-plane {
             from {
                 transform: translate(-50%, -50%) rotate(-20deg);
@@ -187,25 +170,34 @@
             }
         }
 
-        /* 4. 【【【【【【 关键修正 2：引力弹弓效应动画 】】】】】】 */
-        @keyframes comet-slingshot-shot {
+        /* 【【【【【【 关键修正 2：带“留白”的艺术化动画流程 】】】】】】 */
+        @keyframes artistic-comet-flight {
+            /* 第0-10%：是彗星在屏幕外的“留白”时间，完全看不见 */
             0% {
                 transform: translateX(0vmin);
-                animation-timing-function: ease-in; /* 缓慢加速进入 */
                 opacity: 0;
             }
+            /* 从10%开始，彗星才真正进入视野并淡入 */
             10% {
-                opacity: 1; /* 完全可见 */
+                transform: translateX(0vmin);
+                opacity: 0;
             }
-            /* 从10%到90%是飞越过程 */
+            20% {
+                opacity: 1; /* 用10%的时间完全淡入 */
+            }
+            /* 第20-80%是飞越过程 */
+            80% {
+                opacity: 1; /* 在离开前都保持可见 */
+            }
+            /* 从80%开始淡出，90%时完全消失，飞出视野 */
             90% {
-                transform: translateX(150vmin);
-                animation-timing-function: ease-out; /* 快速飞越后缓慢减速 */
-                opacity: 1;
+                transform: translateX(160vmin);
+                opacity: 0;
             }
+            /* 第90-100%：是彗星在屏幕另一侧的“留白”时间 */
             100% {
-                transform: translateX(150vmin);
-                opacity: 0; /* 在终点淡出 */
+                transform: translateX(160vmin);
+                opacity: 0;
             }
         }
         
