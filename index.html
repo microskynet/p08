@@ -124,6 +124,9 @@
         /* --- 彗星和粒子效果样式 --- */
         #comet-container {
             position: absolute;
+                        /* 【【【【【【 修正第1步：添加 top 和 left 使其居中 】】】】】】 */
+            top: 50%;
+            left: 50%;
             width: 150vw;
             height: 150vw;
             animation: comet-orbit 30s linear infinite;
@@ -150,8 +153,12 @@
         }
 
         @keyframes comet-orbit {
+            /*
             from { transform: rotate(-45deg); }
             to { transform: rotate(315deg); }
+            */
+            from { transform: translate(-50%, -50%) rotate(-45deg); }
+            to { transform: translate(-50%, -50%) rotate(315deg); }
         }
 
         @keyframes fade-and-disperse {
