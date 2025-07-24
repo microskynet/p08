@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Solar System Animation</title>
+    <style>
+        /* 基本设置 */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            overflow: hidden;
+        }
+
+        /* 太阳系的容器，作为所有天体运动的参照系 */
+        .solar-system {
+            position: relative;
+            width: 70vmin; /* 使用 vmin 确保在不同屏幕比例下都能很好地显示 */
+            height: 70vmin;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 太阳 */
+        #sun {
+            width: 10%;
+            height: 10%;
+            background-color: #fdd835;
+            border-radius: 50%;
+            box-shadow: 0 0 60px #fdd835, 0 0 90px #f57f17;
+            position: absolute;
+        }
+
+        /* 
+         * 核心动画技巧：
+         * 1. .orbit 是一个透明的、旋转的圆圈。
+         * 2. .planet 是放在这个透明圆圈边缘上的一个小点。
+         * 3. 当 .orbit 旋转时，.planet 就会跟着它一起做圆周运动，从而实现了公转动画！
+        */
+        .orbit {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: spin linear infinite;
+        }
+
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            /* 将行星定位在轨道的顶部中间 */
+            top: 50%;
+            left: -5px; /* 偏移量 = -行星宽度的一半 */
+            transform: translateY(-50%);
+        }
+        
+        /* 定义自转/公转动画 */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* --- 各个行星的详细样式 --- */
+        /* 为了视觉效果，大小和距离不成真实比例，但轨道周期是相对的 */
+
+        /* 水星 (Mercury) */
+        #mercury-orbit {
+            width: 20%; height: 20%;
+            animation-duration: 8.8s; /* 模拟88天轨道周期 */
+        }
+        #mercury {
+            width: 8px; height: 8px;
+            background-color: #BCAAA4;
+            left: -4px;
+        }
+
+        /* 金星 (Venus) */
+        #venus-orbit {
+            width: 30%; height: 30%;
+            animation-duration: 22.5s; /* 模拟225天轨道周期 */
+        }
+        #venus {
+            width: 12px; height: 12px;
+            background-color: #FFF59D;
+            left: -6px;
+        }
+
+        /* 地球 (Earth) */
+        #earth-orbit {
+            width: 45%; height: 45%;
+            animation-duration: 36.5s; /* 模拟365天轨道周期 */
+        }
+        #earth {
+            width: 14px; height: 14px;
+            background: linear-gradient(to bottom, #4FC3F7, #2E7D32);
+            left: -7px;
+        }
+        
+        /* 火星 (Mars) */
+        #mars-orbit {
+            width: 60%; height: 60%;
+            animation-duration: 68.7s; /* 模拟687天轨道周期 */
+        }
+        #mars {
+            width: 10px; height: 10px;
+            background-color: #E57373;
+            left: -5px;
+        }
+
+        /* 木星 (Jupiter) */
+        #jupiter-orbit {
+            width: 80%; height: 80%;
+            animation-duration: 100s; /* 简化轨道周期 */
+        }
+        #jupiter {
+            width: 28px; height: 28px;
+            background: linear-gradient(to bottom, #F5F5F5, #FFCC80);
+            left: -14px;
+        }
+
+        /* 土星 (Saturn) - 带有光环 */
+        #saturn-orbit {
+            width: 100%; height: 100%;
+            animation-duration: 150s; /* 简化轨道周期 */
+        }
+        #saturn {
+            width: 24px; height: 24px;
+            background-color: #FFE082;
+            left: -12px;
+        }
+        /* 用伪元素创建光环 */
+        #saturn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200%; /* 光环比行星宽 */
+            height: 200%;
+            border: 2px solid rgba(255, 224, 130, 0.7);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) rotateX(70deg); /* 倾斜以形成椭圆视觉 */
+        }
+        
+        /* 天王星 (Uranus) */
+        #uranus-orbit {
+            width: 120%; height: 120%;
+            animation-duration: 200s;
+        }
+        #uranus {
+            width: 18px; height: 18px;
+            background-color: #B2EBF2;
+            left: -9px;
+        }
+
+        /* 海王星 (Neptune) */
+        #neptune-orbit {
+            width: 140%; height: 140%;
+            animation-duration: 250s;
+        }
+        #neptune {
+            width: 16px; height: 16px;
+            background-color: #81D4FA;
+            left: -8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="solar-system">
+        <div id="sun"></div>
+
+        <div class="orbit" id="mercury-orbit">
+            <div class="planet" id="mercury"></div>
+        </div>
+
+        <div class="orbit" id="venus-orbit">
+            <div class="planet" id="venus"></div>
+        </div>
+
+        <div class="orbit" id="earth-orbit">
+            <div class="planet" id="earth"></div>
+        </div>
+
+        <div class="orbit" id="mars-orbit">
+            <div class="planet" id="mars"></div>
+        </div>
+
+        <div class="orbit" id="jupiter-orbit">
+            <div class="planet" id="jupiter"></div>
+        </div>
+
+        <div class="orbit" id="saturn-orbit">
+            <div class="planet" id="saturn"></div>
+        </div>
+
+        <div class="orbit" id="uranus-orbit">
+            <div class="planet" id="uranus"></div>
+        </div>
+        
+        <div class="orbit" id="neptune-orbit">
+            <div class="planet" id="neptune"></div>
+        </div>
+    </div>
+
+</body>
+</html>
